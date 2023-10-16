@@ -34,10 +34,10 @@ class NetworkManager(val context: Context) {
     }
 
     @Throws(IOException::class)
-    fun downloadXml(date: String) : List<Book>? {
+    fun downloadXml(keyword: String) : List<Book>? {
         var movies : List<Book>? = null
 
-        val inputStream = downloadUrl( openApiUrl + date)
+        val inputStream = downloadUrl( openApiUrl + keyword)
 
         /*Parser 생성 및 parsing 수행*/
         val parser = NaverBookParser()

@@ -1,0 +1,7 @@
+git add .
+
+git commit -m 'Week n'
+
+git branch -M master
+
+git push -u origin master
