@@ -2,5 +2,5 @@
     <string name="app_name">NaverOpenAPITest</string>
     <string name="client_id">I2JY7r1XUOIlLiBBd926</string>
     <string name="client_secret">agRIwq_X9s</string>
-    <string name="naver_url">https://openapi.naver.com/v1/search/book.json?query=</string>
+    <string name="naver_url">https://openapi.naver.com/v1/search/book.xml?query=</string>
 </resources>

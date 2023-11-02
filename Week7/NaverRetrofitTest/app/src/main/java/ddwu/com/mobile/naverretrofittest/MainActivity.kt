@@ -36,7 +36,9 @@ class MainActivity : AppCompatActivity() {
         adapter.setOnItemClickListener(object : BookAdapter.OnItemClickListner {
             override fun onItemClick(view: View, position: Int) {
                 val url = adapter.books?.get(position)?.image
-                Glide.
+                Glide.with(view.context)
+                    .load(url)
+                    .into(mainBinding.imageView)
                 // RecyclerView 항목 클릭 시 해당 위치의 Item 이 갖고 있는 image 를 Glide 에 전달
             }
         })
@@ -99,10 +101,10 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        val url = resources.getString(R.string.image_url)
-        Glide.with(this)
-            .load(url)
-            .into(mainBinding.imageView)
+//        val url = resources.getString(R.string.image_url)
+//        Glide.with(this)
+//            .load(url)
+//            .into(mainBinding.imageView)
     }
 }
 

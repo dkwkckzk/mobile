@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">BasicFileTest</string>
+    <string name="image_url">http://soft.dongduk.ac.kr:8080/downloads/images/cat.jpg</string>
+</resources>

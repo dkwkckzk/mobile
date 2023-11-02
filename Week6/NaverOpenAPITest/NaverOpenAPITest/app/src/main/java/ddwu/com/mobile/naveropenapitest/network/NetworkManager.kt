@@ -46,7 +46,6 @@ class NetworkManager(val context: Context) {
         return movies
     }
 
-
     @Throws(IOException::class)
     private fun downloadUrl(urlString: String) : InputStream? {
         val url = URL(urlString)

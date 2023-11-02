@@ -13,7 +13,7 @@ class NaverBookParser {
     companion object {
         val FAULT_RESULT = "faultResult"
         val CHANNEL_TAG = "channel"
-        val TITL_TAG = "title"
+        val TITLE_TAG = "title"
         val AUTHOR_TAG = "author"
         val PUBLISHER_TAG = "publisher"
     }
@@ -31,7 +31,7 @@ class NaverBookParser {
             parser.setInput(inputStream, null)
 
             /*Parsing 대상 태그의 상위 태그까지 이동*/
-            whie(parser.name != "channel") {
+            while(parser.name != "channel") {
                 parser.next()
             }
             return readBookList(parser)
@@ -48,8 +48,8 @@ class NaverBookParser {
             if (parser.eventType != XmlPullParser.START_TAG) {
                 continue
             }
-            if (parser.name == CHANNEL_TAG) { // ③ 맞는 항목의 태그인지 검사하고
-                books.add( readDailyBoxOffice(parser) ) // 내부에 있는 TAG를 파싱하는 함수 호출
+            if (parser.name == "item") { // ③ 맞는 항목의 태그인지 검사하고
+                books.add( readBookItem(parser) ) // 내부에 있는 TAG를 파싱하는 함수 호출
             } else {
                 skip(parser)
             }
@@ -60,7 +60,7 @@ class NaverBookParser {
 
     @Throws(XmlPullParserException::class, IOException::class)
     private fun readBookItem(parser: XmlPullParser) : Book {
-        parser.require(XmlPullParser.START_TAG, ns, DAILY_BOXOFFICE_TAG)
+        parser.require(XmlPullParser.START_TAG, ns, "item")
         var title : String? = null
         var author : String? = null
         var publisher : String? = null
@@ -76,8 +76,7 @@ class NaverBookParser {
                 else -> skip(parser)
             }
         }
-        return Book (title, author, publisher) // ⑤ DTO로 읽어 반환
-
+        return Book(title ?: "", author ?: "", publisher ?: "")
     }
 
     @Throws(IOException::class, XmlPullParserException::class)

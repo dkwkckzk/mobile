@@ -16,4 +16,3 @@ data class Food(
         return "$_id - $food ($country)"
     }
 }
-
