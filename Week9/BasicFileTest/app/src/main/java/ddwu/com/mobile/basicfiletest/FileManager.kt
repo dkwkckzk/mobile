@@ -3,11 +3,14 @@ package ddwu.com.mobile.basicfiletest
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.os.Environment
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -24,12 +27,12 @@ class FileManager(val context: Context) {
 
     fun readText(fileName: String) : String? {
         val result = StringBuffer()
-        context.openFileInput("test.txt").bufferedReader().useLines {
-            for (line in it) {
+        context.openFileInput(fileName).bufferedReader().useLines { lines ->
+            for (line in lines) {
                 result.append(line)
             }
         }
-        return null
+        return result.toString()
     }
 
     fun writeImage(fileName: String, imageUrl: String) {
@@ -37,8 +40,17 @@ class FileManager(val context: Context) {
             .asBitmap()
             .load(imageUrl)
             .into( object: CustomTarget<Bitmap>(350, 350){
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    context.openFileOutput(fileName, Context.MODE_PRIVATE).use {
+                        resource.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                    }
+                }
 
-        }
+                override fun onLoadCleared(placeholder: Drawable?) {
+
+                }
+
+            }
 
 
             )
@@ -60,8 +72,9 @@ class FileManager(val context: Context) {
 
 
     fun readImage(fileName: String, view: ImageView) {
-        val imageFile = File(context.filesDir.toString(),"snoopy_spoon.png")
-        val bitmap = BitmapFactory.decodeFile(imageFile.path)
+        Glide.with(context)
+            .load(context.filesDir.path+"/{$fileName}")
+            .into(view)
     }
 
 

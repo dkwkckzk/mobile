@@ -36,31 +36,29 @@ class MainActivity : AppCompatActivity() {
 
 
         mainBinding.btnWrite.setOnClickListener { // 쓰기(생성)
-            val writeData = mainBinding.etText.text.toString()
-            fileManager.writeText("test.txt",writeData)
-
+            val data = mainBinding.etText.text.toString()
+            fileManager.writeText("test.txt",data)
         }
 
         mainBinding.btnRead.setOnClickListener { // 읽기
-            val result = fileManager.readText("test.txt")
-            mainBinding.etText.setText(result.toString())
+            val data = fileManager.readText("test.txt")
+            mainBinding.etText.setText(data)
         }
 
 
         mainBinding.btnReadInternet.setOnClickListener {
-            fileManager.readInternetImage("https://danonline.kr/snoopym/images/snoopy_spoon.png?crc=3980034464")
+            //fileManager.readInternetImage("https://danonline.kr/snoopym/images/snoopy_spoon.png?crc=3980034464")
 
         }
 
         mainBinding.btnWriteImage.setOnClickListener {
-
+            fileManager.writeImage("image.jpg",
+                resources.getString(R.string.image_url))
         }
 
         mainBinding.btnReadImageFile.setOnClickListener {
-            val imageFile = File(filesDir.toString(),"snoopy_spoon.png")
-            val bitmap = BitmapFactory.decodeFile(imageFile.path)
-            mainBinding.imageView.setImageBitmap(bitmap)
-
+            fileManager.readImage("image.jpg",
+                mainBinding.imageView)
         }
 
     }

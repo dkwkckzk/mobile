@@ -73,18 +73,18 @@ class MainActivity : AppCompatActivity() {
 //            }
 
             val apiCall : Call<BookRoot>
-            = service.getBooksByKeyword(
-                resources.getString(R.string.client_id),
-                resources.getString(R.string.client_secret),
-                keyword,
-            ) // 인터페이스 값 삽입 후 호출 받아 오기
+                            = service.getBooksByKeyword(
+                                resources.getString(R.string.client_id),
+                                resources.getString(R.string.client_secret),
+                                keyword,
+                            ) // 인터페이스 값 삽입 후 호출 받아 오기
 
-            apiCall.enqueue( // 인터페이스를 처리하는 callback 함수
-                object: Callback<BookRoot> {
-                    override fun onResponse(call: Call<BookRoot>, response: Response<BookRoot>) {
-                        if (response.isSuccessful) {
-                            val root : BookRoot? = response.body()
-                            root?.items
+                            apiCall.enqueue( // 인터페이스를 처리하는 callback 함수
+                                object: Callback<BookRoot> {
+                                    override fun onResponse(call: Call<BookRoot>, response: Response<BookRoot>) {
+                                        if (response.isSuccessful) {
+                                            val root : BookRoot? = response.body()
+                                            root?.items
                             adapter.books = root?.items
                             adapter.notifyDataSetChanged()
                         } // 여기까지만 해도 완성
