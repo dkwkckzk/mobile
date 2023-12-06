@@ -1,0 +1,204 @@
+class MainActivity : AppCompatActivity() {
+
+    val mainBinding by lazy {
+        ActivityMainBinding.inflate(layoutInflater)
+    }
+
+    val memoDB : MemoDatabase by lazy {
+        MemoDatabase.getDatabase(this)
+    }
+
+    val memoDao : MemoDao by lazy {
+        memoDB.memoDao()
+    }
+
+    val adapter : MemoAdapter by lazy {
+        MemoAdapter()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(mainBinding.root)
+
+        mainBinding.rvMemo.adapter = adapter
+        mainBinding.rvMemo.layoutManager = LinearLayoutManager(this)
+
+        mainBinding.btnAdd.setOnClickListener {
+            val intent = Intent (this, AddMemoActivity::class.java)
+            startActivity(intent)
+        }
+
+        adapter.setOnItemClickListener(object: MemoAdapter.OnMemoItemClickListener{
+            override fun onItemClick(position: Int) {
+                val intent = Intent (this@MainActivity, ShowMemoActivity::class.java )
+                intent.putExtra("memoDto", adapter.memoList?.get(position))
+                startActivity(intent)
+            }
+        })
+
+        showAllMemo()
+    }
+
+    fun showAllMemo() {
+        CoroutineScope(Dispatchers.Main).launch {
+            memoDao.getAllMemos().collect { memos ->
+                adapter.memoList = memos
+                adapter.notifyDataSetChanged()
+            }
+        }
+    }
+
+}
+
+
+
+
+class ShowMemoActivity : AppCompatActivity() {
+
+    val TAG = "ShowMemoActivityTag"
+
+    val showMemoBinding by lazy {
+        ActivityShowMemoBinding.inflate(layoutInflater)
+    }
+
+    lateinit var memoDto : MemoDto
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(showMemoBinding.root)
+
+        showMemoBinding.btnModify.setOnClickListener {
+            Toast.makeText(this, "Implement modifying data", Toast.LENGTH_SHORT).show()
+        }
+
+        showMemoBinding.btnClose.setOnClickListener {
+            finish()
+        }
+
+        /*전달받은 intent 에서 memoDto 를 읽어온 후 각 view 에 지정*/
+
+        // Intent에서 MemoDto 가져오기
+        memoDto = intent.getSerializableExtra("memoDto") as MemoDto
+
+        // 각 View에 DTO의 내용 출력
+        showMemoBinding.tvMemo.text = memoDto.memo
+        val file = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), memoDto.photoName)
+        Glide.with(this)
+            .load(file)
+            .into(showMemoBinding.ivPhoto)
+
+    }
+}
+
+
+
+
+
+
+
+class AddMemoActivity : AppCompatActivity() {
+
+    val REQUEST_IMAGE_CAPTURE = 1
+    //val REQUEST_THUMBNAIL_CAPTURE = 1
+
+    val addMemoBinding by lazy {
+        ActivityAddMemoBinding.inflate(layoutInflater)
+    }
+
+    val memoDB: MemoDatabase by lazy {
+        MemoDatabase.getDatabase(this)
+    }
+
+    val memoDao: MemoDao by lazy {
+        memoDB.memoDao()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(addMemoBinding.root)
+
+        /*DB 에 memoDto 저장*/
+        addMemoBinding.btnAdd.setOnClickListener {
+            if (currentPhotoFileName != null) {
+                val memo = addMemoBinding.tvAddMemo.text.toString()
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    memoDao.insertMemo(MemoDto(0, currentPhotoFileName!!, memo))
+                }
+
+                Toast.makeText(this@AddMemoActivity, "New memo is added!", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+
+        // 카메라 앱을 실행하는 기능 구현
+        addMemoBinding.ivAddPhoto.setOnClickListener {
+            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            if(takePictureIntent.resolveActivity(packageManager) != null) {
+                val photoFile: File? = try {
+                    createImageFile()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    null
+                }
+                if(photoFile != null) {
+                    val photoURI: Uri = FileProvider.getUriForFile(
+                        this, "ddwu.com.mobile.photomemo.fileprovider", photoFile
+                    )
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                }
+            }
+//            Toast.makeText(this@AddMemoActivity, "Click! Implement call taking a picture", Toast.LENGTH_SHORT).show()
+        }
+
+        addMemoBinding.btnCancel.setOnClickListener {
+            finish()
+        }
+    }
+
+    lateinit var currentPhotoPath: String   // 현재 이미지 파일의 경로 저장
+    var currentPhotoFileName: String? = null    // 현재 이미지 파일명
+
+    /*카메라 앱 호출 관련 기능 구현*/
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+        val file = File("${storageDir?.path}/${timeStamp}.jpg")
+
+        currentPhotoFileName = file.name
+        currentPhotoPath = file.absolutePath
+        return file
+    }
+
+    override fun onActivityResult(requestCode: Int, resulteCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resulteCode, data)
+        when (requestCode) {
+//            REQUEST_THUMBNAIL_CAPTURE -> {
+//                if(resulteCode == RESULT_OK) {
+//                    val imageBitmap = data?.extras?.get("data") as Bitmap
+//                    addMemoBinding.ivAddPhoto.setImageBitmap(imageBitmap)
+//                }
+//            }
+            REQUEST_IMAGE_CAPTURE -> {
+                if(resulteCode == RESULT_OK) {
+                    setPic()
+                }
+            }
+        }
+    }
+
+    private fun setPic() {
+        val file = File(currentPhotoPath)
+        if (file.exists()) {
+            Glide.with(this)
+                .load(file)
+                .into(addMemoBinding.ivAddPhoto)
+        } else {
+            Toast.makeText(this, "Failed to load the photo", Toast.LENGTH_SHORT).show()
+        }
+    }
+}
+

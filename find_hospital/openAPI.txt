@@ -4,3 +4,7 @@ pw: ddw1743@!!
 https://github.com/applusform/nearHospital
 https://www.data.go.kr/tcs/puc/selectPublicUseCaseView.do?prcuseCaseSn=1038545
 https://www.2e.co.kr/news/articleView.html?idxno=301793
+
+tmap 앱 키
+A4pS4GHyvt7ENG424wlGd4xgpqTQifcL9lEtbpqx
+https://openapi.sk.com/mypage/project/appKey?pjtSeq=1000037218
